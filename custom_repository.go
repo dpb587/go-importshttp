@@ -1,5 +1,7 @@
 package importshttp
 
+import "fmt"
+
 // CustomRepository supports any VCS and repository root.
 //
 // Consider using service-specific Repository types, when applicable, since they include built-in SourceRepository
@@ -63,7 +65,7 @@ func (rf CustomRepositoryFactory) NewRepository(config RepositoryConfig) (Reposi
 	if urlknown {
 		return CustomRepository{
 			VCS:  vcs,
-			Root: url.String(),
+			Root: fmt.Sprintf("%s%s", url.Host, url.Path),
 		}, nil
 	}
 

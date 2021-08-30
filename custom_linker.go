@@ -27,7 +27,7 @@ func (l CustomLinker) Link(pkg Package) *Link {
 	}
 
 	if len(pkg.ImportSubpackage) > 0 && len(l.DirTemplate) > 0 {
-		link.URL = strings.Replace(strings.Replace(l.PkgTemplate, "{/pkg}", fmt.Sprintf("/%s", pkg.Import), 1), "{/dir}", fmt.Sprintf("/%s", pkg.ImportSubpackage), 1)
+		link.URL = strings.Replace(strings.Replace(l.DirTemplate, "{/pkg}", fmt.Sprintf("/%s", pkg.Import), 1), "{/dir}", fmt.Sprintf("/%s", pkg.ImportSubpackage), 1)
 	} else {
 		link.URL = strings.Replace(l.PkgTemplate, "{/pkg}", fmt.Sprintf("/%s", pkg.Import), 1)
 	}

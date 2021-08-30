@@ -12,10 +12,10 @@ Utilities for hosting Go packages on custom/vanity domains.
 
 For a live example, visit [go.dpb.io](https://go.dpb.io) ([source](https://github.com/dpb587/go.dpb.io); automated via [Cloud Build](https://cloud.google.com/build) and deployed to [Cloud Run](https://cloud.google.com/run)).
 
-To run a server locally, use the [`cmd/http` package](cmd/http)...
+To run a server locally, use the [`cmd/server` package](cmd/server)...
 
 ```bash
-go run go.dpb.io/importshttp/cmd/http \
+go run go.dpb.io/importshttp/cmd/server \
   -pkg=go.example.com/firstpackage=github.com/golang/go/tree/master \
   -pkg=go.example.com/secondpackage=bitbucket.org/example/secondpackage/src/master
 ```

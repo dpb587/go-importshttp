@@ -12,17 +12,13 @@ const RepositoryService = "gitlab"
 
 type Repository struct {
 	Server     string
-	Owner      string
+	Namespace  string
 	Repository string
 	Ref        string
 }
 
 var _ importshttp.Repository = Repository{}
 var _ importshttp.SourceRepository = Repository{}
-
-func (r Repository) Service() string {
-	return RepositoryService
-}
 
 func (r Repository) RepositoryVCS() importshttp.VCS {
 	return importshttp.GitVCS
@@ -32,7 +28,7 @@ func (r Repository) RepositoryRoot() string {
 	return fmt.Sprintf(
 		"%s/%s/%s",
 		r.resolvedServer(),
-		r.Owner,
+		r.Namespace,
 		r.Repository,
 	)
 }

@@ -4,6 +4,7 @@ package defaults
 import (
 	"go.dpb.io/importshttp"
 	"go.dpb.io/importshttp/githubvcs"
+	"go.dpb.io/importshttp/gitlabvcs"
 	"go.dpb.io/importshttp/themepro"
 )
 
@@ -16,7 +17,7 @@ var Linkers = importshttp.LinkerList{
 		Ordering:    25,
 		Label:       "Reference",
 		PkgTemplate: "https://pkg.go.dev{/pkg}",
-		// DirTemplate: "https://pkg.go.dev{/pkg}{/dir}",
+		DirTemplate: "https://pkg.go.dev{/pkg}{/dir}",
 	},
 	importshttp.SourceRepositoryLinker{
 		Ordering: 50,
@@ -31,4 +32,9 @@ var RepositoryFactory = importshttp.BestEffortRepositoryFactory{
 		Server:     githubvcs.DefaultServer,
 		DefaultRef: githubvcs.DefaultRef,
 	},
+	gitlabvcs.RepositoryFactory{
+		Server:     gitlabvcs.DefaultServer,
+		DefaultRef: gitlabvcs.DefaultRef,
+	},
+	importshttp.CustomRepositoryFactory{},
 }
