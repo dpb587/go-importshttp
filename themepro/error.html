@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html{{ with .Site.ContentLanguage }} lang="{{ . }}"{{ end }}>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="{{ .Site.AbsoluteURL ( .Theme.FileURL "main.css" ) }}" rel="stylesheet">
+		<title>Error - {{ .StatusText }}</title>
+		{{- with .Site.Generator }}
+		<meta name="generator" content="{{ . }}">
+		{{- end }}
+	</head>
+	<body>
+		<div class="container">
+			<main>
+				<header>
+					<div class="error-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+						</svg>
+					</div>
+					<div class="page-title">
+						<h1>Error &ndash; {{ .StatusText }}</h1>
+					</div>
+					<div class="page-description">HTTP {{ .StatusCode }}</div>
+				</header>
+			</main>
+			{{- with .Site.Links }}
+			<footer>
+			{{- range $idx, $link := . }}
+				{{- if gt $idx 0 }}
+				<span>&middot;</span>
+				{{- end }}
+				<a href="{{ $link.URL }}">{{ with $link.Label }}{{ . }}{{ else }}{{ $link.URL }}{{ end }}</a>
+			{{- end }}
+			</footer>
+			{{- end }}
+		</div>
+	</body>
+</html>

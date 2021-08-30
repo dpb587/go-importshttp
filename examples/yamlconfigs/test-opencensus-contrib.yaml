@@ -1,0 +1,22 @@
+---
+packages:
+- import: contrib.go.opencensus.io/exporter/aws
+  repository: github.com/census-ecosystem/opencensus-go-exporter-aws/tree/master
+- import: contrib.go.opencensus.io/exporter/graphite
+  repository: github.com/census-ecosystem/opencensus-go-exporter-graphite/tree/master
+- import: contrib.go.opencensus.io/exporter/jaeger
+  repository: github.com/census-ecosystem/opencensus-go-exporter-jaeger/tree/master
+- import: contrib.go.opencensus.io/exporter/ocagent
+  repository: github.com/census-ecosystem/opencensus-go-exporter-ocagent/tree/master
+- import: contrib.go.opencensus.io/exporter/prometheus
+  repository: github.com/census-ecosystem/opencensus-go-exporter-prometheus/tree/master
+- import: contrib.go.opencensus.io/exporter/stackdriver
+  repository: github.com/census-ecosystem/opencensus-go-exporter-stackdriver/tree/master
+- import: contrib.go.opencensus.io/exporter/zipkin
+  repository: github.com/census-ecosystem/opencensus-go-exporter-zipkin/tree/master
+- import: contrib.go.opencensus.io/integrations/ocsql
+  repository: github.com/opencensus-integrations/ocsql/tree/master
+- import: contrib.go.opencensus.io/integrations/redigo
+  repository: github.com/opencensus-integrations/redigo/tree/master
+- import: contrib.go.opencensus.io/resource
+  repository: github.com/census-ecosystem/opencensus-go-resource/tree/master

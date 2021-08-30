@@ -1,0 +1,17 @@
+---
+site:
+  title: Lengthy Example
+  links:
+  - label: home
+    url: https://example.com/
+  metadata:
+    description: Well isn't this less than useful.
+packages:
+- import: contrib.go.opensource.example.com/public/prometheus/exporters/specialized-apache-exporter
+  repository: github.com/owner/repository
+  metadata:
+    description: a shorter description
+- import: contrib.go.opensource.example.com/public/prometheus/exporters/specialized-nginx-exporter
+  repository: github.com/owner/repository
+  metadata:
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque et risus id nulla hendrerit semper. Ut mollis enim in dui feugiat ultricies. Praesent diam tortor, porta eget magna a, varius rutrum sem.

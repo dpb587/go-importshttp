@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html{{ with .Site.ContentLanguage }} lang="{{ . }}"{{ end }}>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="{{ .Site.AbsoluteURL ( .Theme.FileURL "main.css" ) }}" rel="stylesheet">
+		<title>
+			{{- with .Site.Title -}}
+				{{ . }}
+			{{- else -}}
+				{{ .Site.PackagePathPrefix }}
+			{{- end -}}
+		</title>
+		{{- with .Package.Metadata.description }}
+		<meta name="description" content="{{ . }}">
+		{{- end }}
+		{{- with .Site.Generator }}
+		<meta name="generator" content="{{ . }}">
+		{{- end }}
+	</head>
+	<body>
+		<div class="container">
+			<main>
+				<header>
+					<div class="go-logo">
+						<img alt="Go logo" src="{{ .Site.AbsoluteURL ( .Theme.FileURL "go-logo.svg" ) }}" />
+					</div>
+					<div class="page-title">
+						<h1>
+							{{- with .Site.Title -}}
+								{{ . }}
+							{{- else -}}
+								{{ .Site.PackagePathPrefix }}
+							{{- end -}}
+						</h1>
+					</div>
+					{{- with .Site.Metadata.description }}
+					<div class="page-description">
+						{{- . -}}
+					</div>
+					{{- end }}
+				</header>
+				<ul class="pkgs">
+				{{- range .PackageList }}
+					<li class="pkgs-item">
+						<div class="pkgs-item-info">
+							<h2 class="pkgs-item-title">
+								<a href="{{ $.Site.PackageURL .Path }}">{{ .Path }}</a>
+								{{- if .Deprecated }}
+								<img alt="Deprecated icon" src="{{ $.Site.AbsoluteURL ( $.Theme.FileURL "deprecated.svg" ) }}" title="Deprecated" />
+								{{- end }}
+							</h2>
+							{{- with .Metadata.description }}
+							<div class="pkgs-item-description">
+								{{- . -}}
+							</div>
+							{{- end }}
+						</div>
+						{{- with .Links }}
+						<div class="pkgs-item-actions">
+							{{- range $idx, $link := . }}
+							<a class="{{ if eq $idx 0 }}btn-primary{{ else }}btn-secondary{{ end }}" href="{{ .URL }}">
+								{{- .Label -}}
+							</a>
+							{{- end }}
+						</div>
+						{{- end }}
+					</li>
+				{{- else }}
+					<li class="pkgs-noitem">Nothing to see here.</li>
+				{{- end }}
+				</ul>
+			</main>
+			{{- with .Site.Links }}
+			<footer>
+			{{- range $idx, $link := . }}
+				{{- if gt $idx 0 }}
+				<span>&middot;</span>
+				{{- end }}
+				<a href="{{ $link.URL }}">{{ with $link.Label }}{{ . }}{{ else }}{{ $link.URL }}{{ end }}</a>
+			{{- end }}
+			</footer>
+			{{- end }}
+		</div>
+	</body>
+</html>

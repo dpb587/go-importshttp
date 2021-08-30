@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-50 sm:bg-gray-100 sm:m-8
+}
+
+.container {
+  @apply max-w-3xl mx-auto;
+}
+
+main {
+  @apply bg-white sm:rounded-lg py-4 py-6 px-2 sm:px-3 shadow-lg;
+}
+
+header {
+  @apply text-center px-3 pt-0.5;
+}
+
+header .go-logo {
+  @apply mx-auto mb-4 bg-darkblue flex items-center justify-center h-12 w-12 rounded-full shadow-sm;
+}
+
+header .go-logo img {
+  @apply h-10 w-10;
+}
+
+header .error-icon {
+  @apply mx-auto mb-4 bg-red-700 flex items-center justify-center h-12 w-12 rounded-full shadow-sm;
+}
+
+header .error-icon svg {
+  @apply h-11 w-11 text-white;
+}
+
+.page-title {
+  @apply mt-1 text-center;
+}
+
+.page-description {
+  @apply mt-2 text-sm text-gray-500;
+}
+
+h1, h2 {
+  @apply text-lg leading-6 font-medium text-gray-900;
+}
+
+h1 .subtle, h2 .subtle {
+  @apply text-gray-500;
+}
+
+.pkgs {
+  @apply mt-4 sm:mt-5 sm:-mb-2 border-t border-gray-200 divide-y divide-gray-200 space-y-4;
+}
+
+.pkgs li.pkgs-item {
+  @apply sm:flex items-center;
+}
+
+.pkgs-empty {
+  @apply text-center mx-3 mt-4 text-lg leading-6 text-gray-400;
+}
+
+.pkgs-item-info {
+  @apply mx-3 mt-4 min-w-0 flex-grow break-all;
+}
+
+.pkgs-item-title {
+  @apply inline-flex items-center;
+}
+
+.pkgs-item-title a {
+  @apply rounded-sm hover:underline focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-gray-400;
+}
+
+.pkgs-item-title img {
+  @apply ml-0.5 h-5 w-5 cursor-help;
+}
+
+.pkgs-item-description {
+  @apply mt-1 text-sm text-gray-500;
+}
+
+.pkgs-item-actions {
+  @apply mx-3 mt-2 sm:mt-4 pb-1 sm:pb-0 flex-initial;
+}
+
+.pkgs-item-actions .btn-primary {
+  @apply inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-xs sm:text-sm font-medium rounded-md text-white bg-darkblue hover:bg-darkerblue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-darkblue;
+}
+
+.pkgs-item-actions .btn-secondary {
+  @apply sm:hidden inline-flex items-center ml-1 px-4 py-2 border border-gray-300 shadow-sm text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300;
+}
+
+.pkg-actions {
+  @apply mt-5 sm:mt-6 px-3 text-center sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense;
+}
+
+.pkg-actions .btn-primary {
+  @apply w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-darkblue text-sm font-medium text-white hover:bg-darkerblue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-darkblue sm:col-start-2;
+}
+
+.pkg-actions .btn-secondary {
+  @apply mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 sm:mt-0 sm:col-start-1;
+}
+
+.snippets {
+  @apply mt-3.5 px-3;
+}
+
+.snippets-container {
+  @apply isolate -space-y-px rounded-md shadow-sm;
+}
+
+.snippet-top {
+  @apply relative border border-gray-300 rounded-md rounded-b-none pl-3 py-2 pr-12 bg-gray-100 focus-within:z-10 focus-within:ring-1 focus-within:ring-darkblue focus-within:border-darkblue;
+}
+
+.snippet-bottom {
+  @apply relative border border-gray-300 rounded-md rounded-t-none pl-3 py-2 pr-12 bg-gray-100 focus-within:z-10 focus-within:ring-1 focus-within:ring-darkblue focus-within:border-darkblue;
+}
+
+.snippet label {
+  @apply block text-xs leading-5 text-gray-600;
+}
+
+.snippet input {
+  @apply font-mono bg-gray-100 block w-full border-0 p-0 text-gray-900 focus:ring-0;
+}
+
+.snippet button {
+  @apply absolute inset-y-0 right-0 p-4 text-gray-400 hover:text-gray-600 flex items-center z-10;
+}
+
+footer {
+  @apply my-4 sm:my-5 text-xs text-gray-600 text-center;
+}
+
+footer a {
+  @apply p-1 rounded-sm hover:underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400;
+}

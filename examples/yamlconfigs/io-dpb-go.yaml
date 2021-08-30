@@ -1,0 +1,28 @@
+---
+site:
+  links:
+  - label: go.dpb.io
+    url: /
+  - label: github
+    url: https://github.com/dpb587
+  - label: twitter
+    url: https://twitter.com/dpb587
+  - label: source
+    url: https://github.com/dpb587/go.dpb.io
+packages:
+- import: go.dpb.io/importshttp
+  repository: github.com/dpb587/go-importshttp
+  metadata:
+    description: Utilities for hosting Go packages on custom domains.
+- import: go.dpb.io/internal/modtest
+  repository: github.com/dpb587/go-internal-modtest
+  deprecated: true
+  metadata: &modtestMetadata
+    description: Experiments with Go modules. History may be rewritten.
+- import: go.dpb.io/internal/modtest/v2
+  repository: github.com/dpb587/go-internal-modtest/tree/v2
+  metadata: *modtestMetadata
+- import: go.dpb.io/sitemap
+  repository: github.com/dpb587/go-sitemap
+  metadata:
+    description: Stream decoders for sitemap.xml data and link feeds.

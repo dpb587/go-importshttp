@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html{{ with .Site.ContentLanguage }} lang="{{ . }}"{{ end }}>
+	<head>
+		<meta charset="utf-8">
+		<meta name="go-import" content="{{ .Package.GoGetImport.MetaContent }}">
+		{{- with .Package.GoGetSource }}
+		<meta name="go-source" content="{{ .MetaContent }}">
+		{{- end }}
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="{{ .Site.AbsoluteURL ( .Theme.FileURL "main.css" ) }}" rel="stylesheet">
+		<title>{{ .Package.Path }}</title>
+		{{- with .Package.Metadata.description }}
+		<meta name="description" content="{{ . }}">
+		{{- end }}
+		{{- with .Site.Generator }}
+		<meta name="generator" content="{{ . }}">
+		{{- end }}
+		{{- if .Package.ImportSubpackage }}
+		<meta name="robots" content="nofollow noindex">
+		{{- end }}
+	</head>
+	<body>
+		<div class="container">
+			<main>
+				<header>
+					<div class="go-logo">
+						<img alt="Go logo" src="{{ .Site.AbsoluteURL ( .Theme.FileURL "go-logo.svg" ) }}" />
+					</div>
+					<div class="page-title">
+						<h1>
+							{{- .Package.Import -}}
+							{{- with .Package.ImportSubpackage -}}
+								<span class="subtle">/{{ . }}</span>
+							{{- end -}}
+						</h1>
+					</div>
+					{{- with .Package.Metadata.description }}
+					<div class="page-description">
+						{{- . -}}
+					</div>
+					{{- end }}
+				</header>
+				{{- with .Package.Links }}
+				<div class="pkg-actions">
+				{{- range $idx, $link := . }}
+				{{- if eq $idx 0 }}
+					<a class="btn-primary" href="{{ .URL }}">
+						{{- .Label -}}
+					</a>
+				{{- else }}
+					<a class="btn-secondary" href="{{ .URL }}">
+						{{- .Label -}}
+					</a>
+				{{- end }}
+				{{- end }}
+				</div>
+				{{- end }}
+				<div class="snippets">
+					<div class="snippets-container">
+						<div class="snippet snippet-top">
+							<label for="snippet-go-get">Get the package</label>
+							<input id="snippet-go-get" readonly value="go get {{ .Package.Import }}" onfocus="this.select()" onmouseup="return false">
+							<button class="snippet-copy" aria-label="Copy to clipboard" disabled></button>
+						</div>
+						<div class="snippet snippet-bottom">
+							<label for="snippet-import">Import the package</label>
+							<input id="snippet-import" readonly value="import &quot;{{ .Package.Path }}&quot;" onfocus="this.select()" onmouseup="return false">
+							<button class="snippet-copy" aria-label="Copy to clipboard" disabled></button>
+						</div>
+					</div>
+				</div>
+				{{- with .SubpackageList }}
+				<ul class="pkgs">
+					{{- range . }}
+						<li class="pkgs-item">
+							<div class="pkgs-item-info">
+								<h2 class="pkgs-item-title"><a href="{{ $.Site.PackageURL .Path }}">{{ .Path }}</a></h2>
+								{{- with .Metadata.description }}
+								<div class="pkgs-item-description">
+									{{- . -}}
+								</div>
+								{{- end }}
+							</div>
+							{{- with .Links }}
+							<div class="pkgs-item-actions">
+								{{- range $idx, $link := . }}
+								<a class="{{ if eq $idx 0 }}btn-primary{{ else }}btn-secondary{{ end }}" href="{{ .URL }}">
+									{{- .Label -}}
+								</a>
+								{{- end }}
+							</div>
+							{{- end }}
+						</li>
+					{{- else }}
+						<li class="pkgs-noitem">nothing to see here</li>
+					{{- end }}
+				</ul>
+				{{- end }}
+			</main>
+			{{- with .Site.Links }}
+			<footer>
+			{{- range $idx, $link := . }}
+				{{- if gt $idx 0 }}
+				<span>&middot;</span>
+				{{- end }}
+				<a href="{{ $link.URL }}">{{ with $link.Label }}{{ . }}{{ else }}{{ $link.URL }}{{ end }}</a>
+			{{- end }}
+			</footer>
+			{{- end }}
+		</div>
+	</body>
+	<script src="{{ .Site.AbsoluteURL ( .Theme.FileURL "page.package.js" ) }}" defer></script>
+</html>

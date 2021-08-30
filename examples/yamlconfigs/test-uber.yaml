@@ -1,0 +1,36 @@
+---
+packages:
+- import: go.uber.org/atomic
+  repository: github.com/uber-go/atomic/tree/master
+- import: go.uber.org/automaxprocs
+  repository: github.com/uber-go/automaxprocs/tree/master
+- import: go.uber.org/cadence
+  repository: github.com/uber-go/cadence-client/tree/master
+- import: go.uber.org/config
+  repository: github.com/uber-go/config/tree/master
+- import: go.uber.org/dig
+  repository: github.com/uber-go/dig/tree/master
+- import: go.uber.org/fx
+  repository: github.com/uber-go/fx/tree/master
+- import: go.uber.org/goleak
+  repository: github.com/uber-go/goleak/tree/master
+- import: go.uber.org/multierr
+  repository: github.com/uber-go/multierr/tree/master
+- import: go.uber.org/net/metrics
+  repository: github.com/yarpc/metrics/tree/master
+- import: go.uber.org/protoidl
+  repository: github.com/uber-go/protoidl/tree/master
+- import: go.uber.org/ratelimit
+  repository: github.com/uber-go/ratelimit/tree/main
+- import: go.uber.org/sally
+  repository: github.com/uber-go/sally/tree/master
+- import: go.uber.org/thriftrw
+  repository: github.com/thriftrw/thriftrw-go/tree/master
+- import: go.uber.org/tools
+  repository: github.com/uber-go/tools/tree/master
+- import: go.uber.org/torch
+  repository: github.com/uber/go-torch/tree/master
+- import: go.uber.org/yarpc
+  repository: github.com/yarpc/yarpc-go/tree/master
+- import: go.uber.org/zap
+  repository: github.com/uber-go/zap/tree/master

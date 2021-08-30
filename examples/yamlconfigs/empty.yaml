@@ -1,0 +1,9 @@
+---
+site:
+  title: Empty Example
+  links:
+  - label: home
+    url: https://example.com/
+  metadata:
+    description: Well isn't this less than useful.
+packages: []

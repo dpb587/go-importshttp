@@ -1,0 +1,16 @@
+---
+site:
+  links:
+  - label: go.example.com
+    url: /
+  - label: source
+    url: https://github.com/example/go.example.com
+packages:
+- import: go.example.com/firstpackage
+  repository: github.com/golang/go/tree/master
+  metadata:
+    description: Our first package worth listing.
+- import: go.example.com/secondpackage
+  repository: bitbucket.org/example/secondpackage/src/master
+  metadata:
+    description: Our second package you should try out.
