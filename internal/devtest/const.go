@@ -1,0 +1,3 @@
+package devtest
+
+const root = "../.."
