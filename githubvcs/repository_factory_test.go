@@ -23,7 +23,7 @@ func Test_RepositoryFactory_ErrNotDetected_WrongServer(t *testing.T) {
 		Server:     "https://test-github-1.com",
 		DefaultRef: "test-ref-1",
 	}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.UnknownVCS, urlutil.MustParse("https://test-fossil-1.com/test-owner-1")))
-	if _e, _a := importshttp.ErrRepositoryConfigNotDetected, err; _e != _a {
+	if _e, _a := importshttp.ErrRepositoryConfigNotSupported, err; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
 	}
 }
@@ -65,7 +65,7 @@ func Test_RepositoryFactory_URL_OwnerRepository(t *testing.T) {
 
 			repoT, ok := repo.(Repository)
 			if !ok {
-				t.Fatalf("assertion failed on type: %T", repo)
+				t.Fatalf("assertion failed on value type: %T", repo)
 			}
 
 			if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
@@ -97,7 +97,7 @@ func Test_RepositoryFactory_URL_OwnerRepositoryRef(t *testing.T) {
 
 			repoT, ok := repo.(Repository)
 			if !ok {
-				t.Fatalf("assertion failed on type: %T", repo)
+				t.Fatalf("assertion failed on value type: %T", repo)
 			}
 
 			if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
@@ -130,7 +130,7 @@ func Test_RepositoryFactory_Properties_Default(t *testing.T) {
 
 	repoT, ok := repo.(Repository)
 	if !ok {
-		t.Fatalf("assertion failed on type: %T", repo)
+		t.Fatalf("assertion failed on value type: %T", repo)
 	}
 
 	if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
@@ -167,7 +167,7 @@ func Test_RepositoryFactory_Properties_NonDefault(t *testing.T) {
 
 	repoT, ok := repo.(Repository)
 	if !ok {
-		t.Fatalf("assertion failed on type: %T", repo)
+		t.Fatalf("assertion failed on value type: %T", repo)
 	}
 
 	if _e, _a := "testproto://test-github-1.com", repoT.Server; _e != _a {

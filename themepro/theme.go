@@ -1,4 +1,4 @@
-// themepro is a minimal, professional theme.
+// themepro is a simple, professional theme.
 package themepro
 
 import (

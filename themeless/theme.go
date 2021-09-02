@@ -24,8 +24,8 @@ var Theme = importshttp.Theme{
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="go-import" content="{{ .Package.GoGetImport.MetaContent }}" />
-		{{ with .Package.GoGetSource -}}
+		<meta name="go-import" content="{{ .Package.GoImport.MetaContent }}" />
+		{{ with .Package.GoSource -}}
 		<meta name="go-source" content="{{ .MetaContent }}" />
 		{{- end }}
 		{{- if .Package.Links }}

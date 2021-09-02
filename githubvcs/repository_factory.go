@@ -39,7 +39,7 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 	if urlknown {
 		urlmatch := rf.matchServer(url)
 		if !urlmatch && (!vcsknown || vcs == importshttp.GitVCS) {
-			return nil, importshttp.ErrRepositoryConfigNotDetected
+			return nil, importshttp.ErrRepositoryConfigNotSupported
 		}
 
 		return rf.newFromURL(url)

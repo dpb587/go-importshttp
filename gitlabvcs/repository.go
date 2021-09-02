@@ -10,11 +10,12 @@ import (
 
 const RepositoryService = "gitlab"
 
+// Repository is a GitLab-specific repository.
 type Repository struct {
-	Server     string
-	Namespace  string
-	Repository string
-	Ref        string
+	Server    string
+	Namespace string
+	Project   string
+	Ref       string
 }
 
 var _ importshttp.Repository = Repository{}
@@ -29,7 +30,7 @@ func (r Repository) RepositoryRoot() string {
 		"%s/%s/%s",
 		r.resolvedServer(),
 		r.Namespace,
-		r.Repository,
+		r.Project,
 	)
 }
 

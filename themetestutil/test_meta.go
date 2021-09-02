@@ -54,7 +54,7 @@ func TestGoImports(t *testing.T, theme importshttp.Theme) {
 }
 
 // based on https://github.com/golang/go/blob/2ebe77a2fda1ee9ff6fd9a3e08933ad1ebaea039/src/cmd/go/internal/vcs/discovery.go#L32-L64
-func parseMetaGoImports(r io.Reader) ([]importshttp.GoGetImport, error) {
+func parseMetaGoImports(r io.Reader) ([]importshttp.GoImportSpec, error) {
 	attrValue := func(attrs []xml.Attr, name string) string {
 		for _, a := range attrs {
 			if strings.EqualFold(a.Name.Local, name) {
@@ -75,7 +75,7 @@ func parseMetaGoImports(r io.Reader) ([]importshttp.GoGetImport, error) {
 	}
 
 	d.Strict = false
-	var imports []importshttp.GoGetImport
+	var imports []importshttp.GoImportSpec
 	for {
 		t, err := d.RawToken()
 		if err != nil {
@@ -98,7 +98,7 @@ func parseMetaGoImports(r io.Reader) ([]importshttp.GoGetImport, error) {
 			continue
 		}
 		if f := strings.Fields(attrValue(e.Attr, "content")); len(f) == 3 {
-			imports = append(imports, importshttp.GoGetImport{
+			imports = append(imports, importshttp.GoImportSpec{
 				Prefix:   f[0],
 				VCS:      importshttp.VCS(f[1]),
 				RepoRoot: f[2],

@@ -50,22 +50,23 @@ func (i Package) Path() string {
 	return result
 }
 
-// GoGetImport builds the
-func (i Package) GoGetImport() *GoGetImport {
-	return &GoGetImport{
+// GoImport builds the go-import spec.
+func (i Package) GoImport() *GoImportSpec {
+	return &GoImportSpec{
 		Prefix:   i.Import,
 		VCS:      i.Repository.RepositoryVCS(),
 		RepoRoot: i.Repository.RepositoryRoot(),
 	}
 }
 
-func (i Package) GoGetSource() *GoGetSource {
+// GoSource builds the go-source spec (if possible).
+func (i Package) GoSource() *GoSourceSpec {
 	sr, ok := i.Repository.(SourceRepository)
 	if !ok {
 		return nil
 	}
 
-	return &GoGetSource{
+	return &GoSourceSpec{
 		RepoRootPrefix: i.Import,
 		RepoURL:        sr.SourceURL(),
 		DirTemplate:    sr.SourceDirTemplateURL(),

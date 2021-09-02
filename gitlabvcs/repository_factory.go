@@ -18,13 +18,13 @@ import (
 // the tree). URLs containing more than two segments before "/-/" will interpret extra segments as subgroups. Example:
 //
 //     https://gitlab.com/dpb587/go-importshttp/-/tree/main
-//     https://gitlab.com/my-awesome-group/my-subgroup/my-repository/-/tree/main
+//     https://gitlab.com/my-awesome-group/my-subgroup/my-project/-/tree/main
 //
 // For property-based configuration, the lowercase-form of Repository fields are required. Example:
 //
 //     { "server": "https://gitlab.com",
 //       "namespace": "my-awesome-group/my-subgroup",
-//       "repository": "my-repository",
+//       "project": "my-project",
 //       "ref": "main" }
 type RepositoryFactory struct {
 	Server     string
@@ -41,7 +41,7 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 	if urlknown {
 		urlmatch := rf.matchServer(url)
 		if !urlmatch && (!vcsknown || vcs == importshttp.GitVCS) {
-			return nil, importshttp.ErrRepositoryConfigNotDetected
+			return nil, importshttp.ErrRepositoryConfigNotSupported
 		}
 
 		return rf.newFromURL(url)
@@ -78,10 +78,10 @@ func (rf RepositoryFactory) newFromURL(parsed *url.URL) (importshttp.Repository,
 	}
 
 	repo := Repository{
-		Server:     strings.TrimSuffix(parsed.ResolveReference(&url.URL{Path: "/"}).String(), "/"),
-		Namespace:  matches[1],
-		Repository: matches[2],
-		Ref:        rf.DefaultRef,
+		Server:    strings.TrimSuffix(parsed.ResolveReference(&url.URL{Path: "/"}).String(), "/"),
+		Namespace: matches[1],
+		Project:   matches[2],
+		Ref:       rf.DefaultRef,
 	}
 
 	if strings.HasPrefix(repo.Server, "//") {
@@ -112,10 +112,10 @@ func (rf RepositoryFactory) newFromProperties(props map[string]string) (importsh
 		return nil, fmt.Errorf("missing property: namespace")
 	}
 
-	if val, ok := props["repository"]; ok {
-		repo.Repository = val
+	if val, ok := props["project"]; ok {
+		repo.Project = val
 	} else {
-		return nil, fmt.Errorf("missing property: repository")
+		return nil, fmt.Errorf("missing property: project")
 	}
 
 	if val, ok := props["ref"]; ok {

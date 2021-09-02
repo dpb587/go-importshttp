@@ -10,7 +10,7 @@ import (
 
 const RepositoryService = "github"
 
-// Repository
+// Repository is a GitHub-specific repository.
 type Repository struct {
 	// Server must include the scheme and host. There must be no trailing slash. This should be specified, but will
 	// default to DefaultServer.

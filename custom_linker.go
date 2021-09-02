@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// CustomLinker generates a link using a package or directory template.
+// CustomLinker generates a link with a configurable URL template.
 type CustomLinker struct {
 	// Ordering which will be propagated to any generated Link.
 	Ordering int

@@ -10,9 +10,11 @@ import (
 
 const RepositoryService = "bitbucket"
 
+// Repository is a Bitbucket-specific repository.
 type Repository struct {
+	VCS        importshttp.VCS
 	Server     string
-	Owner      string
+	Workspace  string
 	Repository string
 	Ref        string
 }
@@ -20,19 +22,15 @@ type Repository struct {
 var _ importshttp.Repository = Repository{}
 var _ importshttp.SourceRepository = Repository{}
 
-func (r Repository) Service() string {
-	return RepositoryService
-}
-
 func (r Repository) RepositoryVCS() importshttp.VCS {
-	return "git"
+	return r.VCS
 }
 
 func (r Repository) RepositoryRoot() string {
 	return fmt.Sprintf(
 		"%s/%s/%s",
 		r.resolvedServer(),
-		r.Owner,
+		r.Workspace,
 		r.Repository,
 	)
 }

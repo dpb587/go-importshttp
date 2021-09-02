@@ -6,7 +6,7 @@ import (
 	"io/fs"
 )
 
-// ThemeFilePrefix is the location where custom files will be available from.
+// ThemeFilePrefix is the location relative to Handler where custom files are available from.
 var ThemeFilePrefix = "/_theme/"
 
 // Theme contains the settings
