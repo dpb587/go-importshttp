@@ -1,4 +1,4 @@
-package configloader
+package config
 
 import (
 	"io"
@@ -136,9 +136,9 @@ ParseYAML supports extracting configuration from YAML using the following schema
 		source: false
 
 */
-func ParseYAML(r io.Reader, data *Data) error {
+func ParseYAML(r io.Reader, raw *Raw) error {
 	d := yaml.NewDecoder(r)
 	d.SetStrict(true)
 
-	return d.Decode(data)
+	return d.Decode(raw)
 }

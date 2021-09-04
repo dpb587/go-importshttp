@@ -1,7 +1,10 @@
 package githubvcs
 
-// DefaultServer is the default provider for GitHub repositories.
-var DefaultServer = "https://github.com"
+// DefaultInsecure
+var DefaultInsecure = false
+
+// DefaultHost is the default provider for GitHub repositories.
+var DefaultHost = "github.com"
 
 // DefaultRef is the ref/branch used when an explicit one is not provided. To avoid confusion, ref should always be
 // configured and this default not relied upon.

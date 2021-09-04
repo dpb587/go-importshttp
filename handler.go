@@ -44,7 +44,11 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
-	} else if pkg, ok := h.packageList.Find(fmt.Sprintf("%s%s", h.site.PackagePathPrefix, r.URL.Path)); ok {
+	} else if pkg, exact, ok := h.packageList.Find(fmt.Sprintf("%s%s", h.site.PackagePathPrefix, r.URL.Path)); ok {
+		if !exact {
+			pkg.Links = h.site.PackageLinkers.GetPackageLinks(pkg)
+		}
+
 		h.render(w, r, h.theme.PackageTemplate, map[string]interface{}{
 			"Package":        pkg,
 			"SubpackageList": h.packageList.FilterByParent(pkg.Path()).FilterByListed(),

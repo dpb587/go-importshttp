@@ -1,4 +1,4 @@
-package configloader
+package config
 
 import (
 	"flag"
@@ -11,7 +11,7 @@ import (
 )
 
 // ParseFlags supports extracting basic configuration from command line options. For full configuration use a YAML file.
-func ParseFlags(flagSet *flag.FlagSet, args []string, config *Data) error {
+func ParseFlags(flagSet *flag.FlagSet, args []string, raw *Raw) error {
 	var bind, configFile, theme string
 	var pkgs flagPackageList
 
@@ -34,29 +34,29 @@ func ParseFlags(flagSet *flag.FlagSet, args []string, config *Data) error {
 
 		defer fh.Close()
 
-		err = ParseYAML(fh, config)
+		err = ParseYAML(fh, raw)
 		if err != nil {
 			return fmt.Errorf("parsing config file: %s", err)
 		}
 	}
 
 	if len(bind) > 0 {
-		config.Server.Bind = bind
+		raw.Server.Bind = bind
 	}
 
 	if len(theme) > 0 {
-		config.Theme.Theme, err = getThemeFromString(theme)
+		raw.Theme.Theme, err = getThemeFromString(theme)
 		if err != nil {
 			return err
 		}
 	}
 
-	config.Packages = append(config.Packages, pkgs...)
+	raw.Packages = append(raw.Packages, pkgs...)
 
 	return nil
 }
 
-type flagPackageList DataPackageList
+type flagPackageList RawPackageList
 
 func (i *flagPackageList) String() string {
 	return ""
@@ -77,9 +77,9 @@ func (i *flagPackageList) Set(value string) error {
 		return err
 	}
 
-	dm := DataPackage{
+	dm := RawPackage{
 		Import: valueSplit[0],
-		Repository: DataPackageRepository{
+		Repository: RawPackageRepository{
 			RepositoryConfig: importshttp.NewRepositoryConfigURL("", parsedURL),
 		},
 	}

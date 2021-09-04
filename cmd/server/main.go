@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/NYTimes/gziphandler"
-	"go.dpb.io/importshttp/configloader"
+	"go.dpb.io/importshttp/config"
+	"go.dpb.io/importshttp/config/configdefaults"
 )
 
 func main() {
@@ -16,8 +17,8 @@ func main() {
 	flagSet := flag.NewFlagSet(filepath.Base(os.Args[0]), flag.ContinueOnError)
 	flagSet.BoolVar(&exit, "exit", false, "exit before server start (validates config)")
 
-	config := configloader.New()
-	err := configloader.ParseFlags(flagSet, os.Args[1:], &config)
+	rawconfig := configdefaults.New()
+	err := config.ParseFlags(flagSet, os.Args[1:], &rawconfig)
 	if err != nil {
 		if err == flag.ErrHelp {
 			return
@@ -26,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	resolved, err := config.Resolve()
+	resolved, err := rawconfig.Resolve()
 	if err != nil {
 		panic(err)
 	}
@@ -37,5 +38,5 @@ func main() {
 		return
 	}
 
-	http.ListenAndServe(config.Server.Bind, nil)
+	http.ListenAndServe(rawconfig.Server.Bind, nil)
 }

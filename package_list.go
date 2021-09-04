@@ -12,7 +12,7 @@ type PackageList []Package
 // Find will search the list for a package by the expected import. If an exact match is not found, the longest matching
 // package will be returned (with the ImportSubpackage field including the unmatched path, assuming it is a subpackage).
 // If still no match can be found, Package will be empty and bool will be false.
-func (pl PackageList) Find(expected string) (Package, bool) {
+func (pl PackageList) Find(expected string) (Package, bool, bool) {
 	var longestok bool
 	var longestpkg Package
 	var longestpkgpath string
@@ -21,7 +21,7 @@ func (pl PackageList) Find(expected string) (Package, bool) {
 		pkgpath := pkg.Path()
 
 		if pkgpath == expected {
-			return pkg, true
+			return pkg, true, true
 		} else if strings.HasPrefix(expected, fmt.Sprintf("%s/", pkgpath)) && len(pkgpath) > len(longestpkgpath) {
 			longestok = true
 			longestpkg = pkg
@@ -30,7 +30,7 @@ func (pl PackageList) Find(expected string) (Package, bool) {
 		}
 	}
 
-	return longestpkg, longestok
+	return longestpkg, false, longestok
 }
 
 // FilterByParent returns all packages which appear as a direct subpackage of the input.

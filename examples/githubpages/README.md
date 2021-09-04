@@ -9,5 +9,6 @@ This repository manages the custom remote imports for Go packages through [GitHu
 
 Useful links:
 
- * [`dpb587/go-importshttp-for-github`](https://github.com/dpb587/go-importshttp-for-github) (original repository template)
- * [Configuring a custom domain for your GitHub Pages site](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site)
+ * [`INSTALL.md`](INSTALL.md) - for initial steps in customizing this repository
+ * [`dpb587/go-importshttp-for-github`](https://github.com/dpb587/go-importshttp-for-github) - for the original repository template
+ * [Configuring a custom domain for your GitHub Pages site](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site) - for something other than `{username}.github.io`

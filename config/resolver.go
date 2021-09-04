@@ -1,4 +1,4 @@
-package configloader
+package config
 
 import (
 	"fmt"
@@ -8,33 +8,35 @@ import (
 	"go.dpb.io/importshttp"
 )
 
-type ResolvedData struct {
+type Resolved struct {
 	pkgs    importshttp.PackageList
 	site    importshttp.Site
 	theme   importshttp.Theme
 	handler http.Handler
 }
 
-func (rd *ResolvedData) PackageList() importshttp.PackageList {
+func (rd *Resolved) PackageList() importshttp.PackageList {
 	return rd.pkgs
 }
 
-func (rd *ResolvedData) Site() importshttp.Site {
+func (rd *Resolved) Site() importshttp.Site {
 	return rd.site
 }
 
-func (rd *ResolvedData) Theme() importshttp.Theme {
+func (rd *Resolved) Theme() importshttp.Theme {
 	return rd.theme
 }
 
-func (rd *ResolvedData) Handler() http.Handler {
+func (rd *Resolved) Handler() http.Handler {
 	return rd.handler
 }
 
-func (d Data) Resolve() (*ResolvedData, error) {
-	resolved := &ResolvedData{
+func (d Raw) Resolve() (*Resolved, error) {
+	resolved := &Resolved{
 		theme: d.Theme.Theme,
 	}
+
+	linkers := d.Linkers
 
 	{ // pkgs
 		pkgs, err := d.Packages.AsPackageList(d.RepositoryFactory)
@@ -42,11 +44,12 @@ func (d Data) Resolve() (*ResolvedData, error) {
 			return nil, fmt.Errorf("loading packages: %s", err)
 		}
 
-		resolved.pkgs = d.Linkers.MapPackageList(pkgs)
+		resolved.pkgs = linkers.MapPackageList(pkgs)
 	}
 
 	{ // site
 		site := d.Site.AsSite()
+		site.PackageLinkers = linkers
 		site.Links.SortByOrdering()
 
 		{

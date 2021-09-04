@@ -35,19 +35,17 @@ func registerGoPackages(mux *http.ServeMux) {
 		{
 			Import: "example.com/devops/sretools",
 			Repository: githubvcs.Repository{
-				Server:     "https://github.example.com",
+				Host:       "github.example.com",
 				Owner:      "devops-team",
 				Repository: "go-sretools",
-				Ref:        "main",
 			},
 		},
 		{
 			Import: "example.com/dba/queryauditor",
 			Repository: githubvcs.Repository{
-				Server:     "https://github.example.com",
+				Host:       "github.example.com",
 				Owner:      "dbtools",
 				Repository: "go-queryauditor",
-				Ref:        "master",
 			},
 		},
 	}

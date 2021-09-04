@@ -12,7 +12,8 @@ import (
 	"time"
 
 	"go.dpb.io/importshttp"
-	"go.dpb.io/importshttp/configloader"
+	"go.dpb.io/importshttp/config"
+	"go.dpb.io/importshttp/config/configdefaults"
 )
 
 func main() {
@@ -21,8 +22,8 @@ func main() {
 	flagSet := flag.NewFlagSet(filepath.Base(os.Args[0]), flag.ContinueOnError)
 	flagSet.StringVar(&outdir, "out", "public", "directory to write site")
 
-	config := configloader.New()
-	err := configloader.ParseFlags(flagSet, os.Args[1:], &config)
+	rawconfig := configdefaults.New()
+	err := config.ParseFlags(flagSet, os.Args[1:], &rawconfig)
 	if err != nil {
 		if err == flag.ErrHelp {
 			return
@@ -31,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	resolved, err := config.Resolve()
+	resolved, err := rawconfig.Resolve()
 	if err != nil {
 		panic(err)
 	}

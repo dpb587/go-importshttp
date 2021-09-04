@@ -25,16 +25,14 @@ var Linkers = importshttp.LinkerList{
 	},
 }
 
-// RepositoryFactory supports detecting Bitbucket, GitHub, and GitLab repositories (or explicit references for
-// self-hosted installations), as well as a fallback for custom repositories with explicit VCS and reopsitory root.
+// RepositoryFactory supports detecting GitHub and GitLab repositories (or explicit references for self-hosted
+// installations), as well as a fallback for custom repositories with explicit VCS and reopsitory root.
 var RepositoryFactory = importshttp.BestEffortRepositoryFactory{
 	githubvcs.RepositoryFactory{
-		Server:     githubvcs.DefaultServer,
-		DefaultRef: githubvcs.DefaultRef,
+		Host: githubvcs.DefaultHost,
 	},
 	gitlabvcs.RepositoryFactory{
-		Server:     gitlabvcs.DefaultServer,
-		DefaultRef: gitlabvcs.DefaultRef,
+		Host: gitlabvcs.DefaultHost,
 	},
 	importshttp.CustomRepositoryFactory{},
 }

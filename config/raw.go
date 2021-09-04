@@ -1,4 +1,4 @@
-package configloader
+package config
 
 import (
 	"errors"
@@ -12,30 +12,30 @@ import (
 	"go.dpb.io/importshttp/themepro"
 )
 
-type Data struct {
+type Raw struct {
 	RepositoryFactory importshttp.RepositoryFactory `yaml:"-"`
 	Linkers           importshttp.LinkerList        `yaml:"-"` // TODO customizable
 
-	Server   DataServer      `yaml:"server"`
-	Site     DataSite        `yaml:"site"`
-	Theme    DataTheme       `yaml:"theme"`
-	Packages DataPackageList `yaml:"packages"`
+	Server   RawServer      `yaml:"server"`
+	Site     RawSite        `yaml:"site"`
+	Theme    RawTheme       `yaml:"theme"`
+	Packages RawPackageList `yaml:"packages"`
 }
 
-type DataServer struct {
+type RawServer struct {
 	Bind string `yaml:"bind"`
 }
 
-type DataSite struct {
+type RawSite struct {
 	URL             string                 `yaml:"url"`
 	Title           string                 `yaml:"title"`
 	Generator       string                 `yaml:"generator"`
 	ContentLanguage string                 `yaml:"content_language"`
-	Links           DataLinkList           `yaml:"links"`
+	Links           RawLinkList            `yaml:"links"`
 	Metadata        map[string]interface{} `yaml:"metadata"`
 }
 
-func (ds DataSite) AsSite() importshttp.Site {
+func (ds RawSite) AsSite() importshttp.Site {
 	return importshttp.Site{
 		URL:             ds.URL,
 		Title:           ds.Title,
@@ -46,15 +46,15 @@ func (ds DataSite) AsSite() importshttp.Site {
 	}
 }
 
-type DataLink struct {
+type RawLink struct {
 	Ordering int    `yaml:"ordering"`
 	Label    string `yaml:"label"`
 	URL      string `yaml:"url"`
 }
 
-type DataLinkList []DataLink
+type RawLinkList []RawLink
 
-func (dll DataLinkList) AsLinkList() importshttp.LinkList {
+func (dll RawLinkList) AsLinkList() importshttp.LinkList {
 	var res importshttp.LinkList
 
 	for dlIdx, dl := range dll {
@@ -72,7 +72,7 @@ func (dll DataLinkList) AsLinkList() importshttp.LinkList {
 	return res
 }
 
-type DataTheme struct {
+type RawTheme struct {
 	importshttp.Theme
 }
 
@@ -87,7 +87,7 @@ func getThemeFromString(in string) (importshttp.Theme, error) {
 	return importshttp.Theme{}, fmt.Errorf("invalid theme name: %s", in)
 }
 
-func (s *DataTheme) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *RawTheme) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var attemptedString string
 
 	if err := unmarshal(&attemptedString); err == nil {
@@ -110,19 +110,19 @@ func (s *DataTheme) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return errors.New("TODO")
 }
 
-type DataPackage struct {
+type RawPackage struct {
 	Import           string                 `yaml:"import"`
 	ImportSubpackage string                 `yaml:"import_subpackage"`
-	Repository       DataPackageRepository  `yaml:"repository"`
+	Repository       RawPackageRepository   `yaml:"repository"`
 	Deprecated       bool                   `yaml:"deprecated"`
 	Unlisted         bool                   `yaml:"unlisted"`
 	Metadata         map[string]interface{} `yaml:"metadata"`
-	Links            DataLinkList           `yaml:"links"`
+	Links            RawLinkList            `yaml:"links"`
 }
 
-type DataPackageList []DataPackage
+type RawPackageList []RawPackage
 
-func (dpl DataPackageList) AsPackageList(factory importshttp.RepositoryFactory) (importshttp.PackageList, error) {
+func (dpl RawPackageList) AsPackageList(factory importshttp.RepositoryFactory) (importshttp.PackageList, error) {
 	var res importshttp.PackageList
 
 	for _, dp := range dpl {
@@ -148,11 +148,11 @@ func (dpl DataPackageList) AsPackageList(factory importshttp.RepositoryFactory) 
 	return res, nil
 }
 
-type DataPackageRepository struct {
+type RawPackageRepository struct {
 	importshttp.RepositoryConfig
 }
 
-func (s *DataPackageRepository) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *RawPackageRepository) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var attemptedURL string
 
 	err := unmarshal(&attemptedURL)

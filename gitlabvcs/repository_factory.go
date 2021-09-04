@@ -1,9 +1,11 @@
 package gitlabvcs
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"go.dpb.io/importshttp"
@@ -19,16 +21,17 @@ import (
 //
 //     https://gitlab.com/dpb587/go-importshttp/-/tree/main
 //     https://gitlab.com/my-awesome-group/my-subgroup/my-project/-/tree/main
+//     gitlab.com/my-awesome-group/my-subgroup/my-project
 //
-// For property-based configuration, the lowercase-form of Repository fields are required. Example:
+// For property-based configuration, the lowercase-form of fields are acceptable. Example:
 //
-//     { "server": "https://gitlab.com",
+//     { "host": "gitlab.com",
 //       "namespace": "my-awesome-group/my-subgroup",
 //       "project": "my-project",
 //       "ref": "main" }
 type RepositoryFactory struct {
-	Server     string
-	DefaultRef string
+	Insecure bool
+	Host     string
 }
 
 func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (importshttp.Repository, error) {
@@ -39,12 +42,14 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 
 	url, urlknown := config.URL()
 	if urlknown {
-		urlmatch := rf.matchServer(url)
-		if !urlmatch && (!vcsknown || vcs == importshttp.GitVCS) {
+		normurl, urlmatch := rf.matchURL(vcs, url)
+		if !urlmatch {
 			return nil, importshttp.ErrRepositoryConfigNotSupported
 		}
 
-		return rf.newFromURL(url)
+		return rf.newFromURL(normurl)
+	} else if vcs != RepositoryService {
+		return nil, importshttp.ErrRepositoryConfigNotSupported
 	}
 
 	props, propsknown := config.Properties()
@@ -55,55 +60,86 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 	return rf.newFromProperties(props)
 }
 
-func (rf RepositoryFactory) matchServer(parsed *url.URL) bool {
-	serverSplit := strings.SplitN(rf.Server, "://", 2)
+func (rf RepositoryFactory) matchURL(vcs importshttp.VCS, parsed *url.URL) (*url.URL, bool) {
+	normurl := parsed.ResolveReference(&url.URL{})
 
-	if serverSplit[1] != parsed.Host {
-		return false
-	} else if len(parsed.Scheme) == 0 {
-		return true
-	} else if serverSplit[0] == parsed.Scheme {
-		return true
+	if len(parsed.Host) == 0 {
+		pathSplit := strings.SplitN(parsed.Path, "/", 2)
+		normurl.Host = pathSplit[0]
+		if len(pathSplit) == 2 {
+			normurl.Path = fmt.Sprintf("/%s", pathSplit[1])
+		} else {
+			normurl.Path = ""
+		}
 	}
 
-	return false
+	if len(parsed.Scheme) == 0 {
+		if rf.Insecure {
+			normurl.Scheme = "http:"
+		} else {
+			normurl.Scheme = "https:"
+		}
+	}
+
+	if rf.Host == normurl.Host {
+		return normurl, true
+	} else if vcs == RepositoryService {
+		return normurl, true
+	}
+
+	return nil, false
 }
 
-var rePathTree = regexp.MustCompile(`/((?U).+)/([^/]+)(/-/([^/]+)/(.+))?$`)
+var rePathPreMatch = regexp.MustCompile(`^/([^/]+((?U)/[^/]+)*)/([^/]+)$`)
 
 func (rf RepositoryFactory) newFromURL(parsed *url.URL) (importshttp.Repository, error) {
-	matches := rePathTree.FindStringSubmatch(parsed.Path)
-	if len(matches) == 0 || (len(matches[4]) > 0 && matches[4] != "tree") {
+	pathSlashSplit := strings.SplitN(parsed.Path, "/-/", 2)
+
+	matchPre := rePathPreMatch.FindStringSubmatch(pathSlashSplit[0])
+	if len(matchPre) == 0 {
 		return nil, fmt.Errorf("expected gitlab-style path of `/{owner}(/{subgroup})...?/{repository}(/-/tree/{ref})?` but got %s", parsed.Path)
 	}
 
 	repo := Repository{
-		Server:    strings.TrimSuffix(parsed.ResolveReference(&url.URL{Path: "/"}).String(), "/"),
-		Namespace: matches[1],
-		Project:   matches[2],
-		Ref:       rf.DefaultRef,
+		Insecure:  parsed.Scheme == "http:",
+		Host:      parsed.Host,
+		Namespace: matchPre[1],
+		Project:   strings.TrimPrefix(matchPre[3], "/"),
 	}
 
-	if strings.HasPrefix(repo.Server, "//") {
-		// TODO fix weird edge case of default non-desired schema factory claiming generic gitlab service config
-		repo.Server = fmt.Sprintf("%s:%s", strings.SplitN(rf.Server, "://", 2)[0], repo.Server)
+	var res importshttp.Repository = repo
+
+	if len(pathSlashSplit) > 1 {
+		pathPostSplit := strings.SplitN(pathSlashSplit[1], "/", 2)
+		if len(pathPostSplit) != 2 || pathPostSplit[0] != "tree" || len(pathPostSplit[1]) == 0 {
+			return nil, fmt.Errorf("expected gitlab-style path of `/{owner}(/{subgroup})...?/{repository}(/-/tree/{ref})?` but got %s", parsed.Path)
+		}
+
+		res = RepositoryRef{
+			Repository: repo,
+			Ref:        pathPostSplit[1],
+		}
 	}
 
-	if len(matches[5]) > 0 {
-		repo.Ref = matches[5]
-	}
-
-	return repo, nil
+	return res, nil
 }
 
 func (rf RepositoryFactory) newFromProperties(props map[string]string) (importshttp.Repository, error) {
 	var repo = Repository{
-		Server: rf.Server,
-		Ref:    rf.DefaultRef,
+		Host: rf.Host,
 	}
 
-	if val, ok := props["server"]; ok {
-		repo.Server = val
+	if val, ok := props["insecure"]; ok {
+		valBool, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, errors.New("invalid property: insecure")
+		}
+
+		repo.Insecure = valBool
+	}
+
+	if val, ok := props["host"]; ok {
+		repo.Host = val
 	}
 
 	if val, ok := props["namespace"]; ok {
@@ -118,9 +154,14 @@ func (rf RepositoryFactory) newFromProperties(props map[string]string) (importsh
 		return nil, fmt.Errorf("missing property: project")
 	}
 
+	var res importshttp.Repository = repo
+
 	if val, ok := props["ref"]; ok {
-		repo.Ref = val
+		res = RepositoryRef{
+			Repository: repo,
+			Ref:        val,
+		}
 	}
 
-	return repo, nil
+	return res, nil
 }

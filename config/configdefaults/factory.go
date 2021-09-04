@@ -1,4 +1,4 @@
-package configloader
+package configdefaults
 
 import (
 	"fmt"
@@ -6,21 +6,22 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"go.dpb.io/importshttp/config"
 	"go.dpb.io/importshttp/defaults"
 )
 
-func New() Data {
-	config := Data{
+func New() config.Raw {
+	config := config.Raw{
 		RepositoryFactory: defaults.RepositoryFactory,
 		Linkers:           defaults.Linkers,
 
-		Server: DataServer{
+		Server: config.RawServer{
 			Bind: "0.0.0.0:8080",
 		},
-		Site: DataSite{
+		Site: config.RawSite{
 			ContentLanguage: "en",
 		},
-		Theme: DataTheme{
+		Theme: config.RawTheme{
 			Theme: defaults.Theme,
 		},
 	}

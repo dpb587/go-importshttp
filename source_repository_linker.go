@@ -1,6 +1,9 @@
 package importshttp
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // SourceRepositoryLinker generates a link based on a Package's SourceRepository, as available.
 type SourceRepositoryLinker struct {
@@ -18,7 +21,7 @@ func (l SourceRepositoryLinker) Link(pkg Package) *Link {
 		return &Link{
 			Ordering: l.Ordering,
 			Label:    l.Label,
-			URL:      strings.Replace(sourceDirTemplateURL, "{/dir}", pkg.ImportSubpackage, -1),
+			URL:      strings.Replace(sourceDirTemplateURL, "{/dir}", fmt.Sprintf("/%s", pkg.ImportSubpackage), -1),
 		}
 	} else if sourceURL := rs.SourceURL(); len(sourceURL) > 0 {
 		return &Link{

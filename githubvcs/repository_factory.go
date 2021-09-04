@@ -1,8 +1,11 @@
 package githubvcs
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"go.dpb.io/importshttp"
@@ -17,16 +20,17 @@ import (
 // the tree). Example:
 //
 //     https://github.com/dpb587/go-importshttp/tree/main
+//     github.com/dpb587/go-importshttp
 //
-// For property-based configuration, the lowercase-form of Repository fields are required. Example:
+// For property-based configuration, the lowercase-form of fields are acceptable. Example:
 //
-//     { "server": "https://github.com",
+//     { "host": "github.com",
 //       "owner": "dpb587",
 //       "repository": "go-importshttp",
 //       "ref": "main" }
 type RepositoryFactory struct {
-	Server     string
-	DefaultRef string
+	Insecure bool
+	Host     string
 }
 
 func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (importshttp.Repository, error) {
@@ -37,12 +41,14 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 
 	url, urlknown := config.URL()
 	if urlknown {
-		urlmatch := rf.matchServer(url)
-		if !urlmatch && (!vcsknown || vcs == importshttp.GitVCS) {
+		normurl, urlmatch := rf.matchURL(vcs, url)
+		if !urlmatch {
 			return nil, importshttp.ErrRepositoryConfigNotSupported
 		}
 
-		return rf.newFromURL(url)
+		return rf.newFromURL(normurl)
+	} else if vcs != RepositoryService {
+		return nil, importshttp.ErrRepositoryConfigNotSupported
 	}
 
 	props, propsknown := config.Properties()
@@ -53,71 +59,101 @@ func (rf RepositoryFactory) NewRepository(config importshttp.RepositoryConfig) (
 	return rf.newFromProperties(props)
 }
 
-func (rf RepositoryFactory) matchServer(parsed *url.URL) bool {
-	serverSplit := strings.SplitN(rf.Server, "://", 2)
+func (rf RepositoryFactory) matchURL(vcs importshttp.VCS, parsed *url.URL) (*url.URL, bool) {
+	normurl := parsed.ResolveReference(&url.URL{})
 
-	if serverSplit[1] != parsed.Host {
-		return false
-	} else if len(parsed.Scheme) == 0 {
-		return true
-	} else if serverSplit[0] == parsed.Scheme {
-		return true
+	if len(parsed.Host) == 0 {
+		pathSplit := strings.SplitN(parsed.Path, "/", 2)
+		normurl.Host = pathSplit[0]
+		if len(pathSplit) == 2 {
+			normurl.Path = fmt.Sprintf("/%s", pathSplit[1])
+		} else {
+			normurl.Path = ""
+		}
 	}
 
-	return false
+	if len(parsed.Scheme) == 0 {
+		if rf.Insecure {
+			normurl.Scheme = "http:"
+		} else {
+			normurl.Scheme = "https:"
+		}
+	}
+
+	if rf.Host == normurl.Host {
+		return normurl, true
+	} else if vcs == RepositoryService {
+		return normurl, true
+	}
+
+	return nil, false
 }
 
+var rePathMatch = regexp.MustCompile(`^/([^/]+)/([^/]+)(/(tree/([^/]+))?)?$`)
+
 func (rf RepositoryFactory) newFromURL(parsed *url.URL) (importshttp.Repository, error) {
-	pathSplit := strings.SplitN(parsed.Path, "/", 6)
-	pathSplitLen := len(pathSplit)
-	if pathSplitLen < 3 || pathSplitLen == 4 || pathSplitLen == 6 || (pathSplitLen == 5 && pathSplit[3] != "tree") {
+	match := rePathMatch.FindStringSubmatch(parsed.Path)
+	if len(match) == 0 {
 		return nil, fmt.Errorf("expected github-style path of `/{owner}/{repository}(/tree/{ref})?` but got %s", parsed.Path)
 	}
 
 	repo := Repository{
-		Server:     strings.TrimSuffix(parsed.ResolveReference(&url.URL{Path: "/"}).String(), "/"),
-		Owner:      pathSplit[1],
-		Repository: pathSplit[2],
-		Ref:        rf.DefaultRef,
+		Insecure:   parsed.Scheme == "http:",
+		Host:       parsed.Host,
+		Owner:      match[1],
+		Repository: match[2],
 	}
 
-	if strings.HasPrefix(repo.Server, "//") {
-		// TODO fix weird edge case of default non-desired schema factory claiming generic github service config
-		repo.Server = fmt.Sprintf("%s:%s", strings.SplitN(rf.Server, "://", 2)[0], repo.Server)
+	var res importshttp.Repository = repo
+
+	if len(match[5]) > 0 {
+		res = RepositoryRef{
+			Repository: repo,
+			Ref:        match[5],
+		}
 	}
 
-	if pathSplitLen > 4 {
-		repo.Ref = pathSplit[4]
-	}
-
-	return repo, nil
+	return res, nil
 }
 
 func (rf RepositoryFactory) newFromProperties(props map[string]string) (importshttp.Repository, error) {
 	var repo = Repository{
-		Server: rf.Server,
-		Ref:    rf.DefaultRef,
+		Host: rf.Host,
 	}
 
-	if val, ok := props["server"]; ok {
-		repo.Server = val
+	if val, ok := props["insecure"]; ok {
+		valBool, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, errors.New("invalid property: insecure")
+		}
+
+		repo.Insecure = valBool
+	}
+
+	if val, ok := props["host"]; ok {
+		repo.Host = val
 	}
 
 	if val, ok := props["owner"]; ok {
 		repo.Owner = val
 	} else {
-		return nil, fmt.Errorf("missing property: owner")
+		return nil, errors.New("missing property: owner")
 	}
 
 	if val, ok := props["repository"]; ok {
 		repo.Repository = val
 	} else {
-		return nil, fmt.Errorf("missing property: repository")
+		return nil, errors.New("missing property: repository")
 	}
+
+	var res importshttp.Repository = repo
 
 	if val, ok := props["ref"]; ok {
-		repo.Ref = val
+		res = RepositoryRef{
+			Repository: repo,
+			Ref:        val,
+		}
 	}
 
-	return repo, nil
+	return res, nil
 }

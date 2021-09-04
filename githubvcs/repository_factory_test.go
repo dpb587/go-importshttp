@@ -8,10 +8,9 @@ import (
 	"go.dpb.io/importshttp/internal/urlutil"
 )
 
-func Test_RepositoryFactory_ErrNotSupported(t *testing.T) {
+func Test_RepositoryFactory_ErrNotDetected_WrongVCS(t *testing.T) {
 	_, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.FossilVCS, urlutil.MustParse("https://test-fossil-1.com/test-owner-1/test-repository-1")))
 	if _e, _a := importshttp.ErrRepositoryConfigNotSupported, err; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
@@ -20,8 +19,7 @@ func Test_RepositoryFactory_ErrNotSupported(t *testing.T) {
 
 func Test_RepositoryFactory_ErrNotDetected_WrongServer(t *testing.T) {
 	_, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.UnknownVCS, urlutil.MustParse("https://test-fossil-1.com/test-owner-1")))
 	if _e, _a := importshttp.ErrRepositoryConfigNotSupported, err; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
@@ -37,8 +35,7 @@ func Test_RepositoryFactory_URL_ErrPathFormat(t *testing.T) {
 	} {
 		t.Run(subtestNameURL, func(t *testing.T) {
 			_, err := RepositoryFactory{
-				Server:     "https://test-github-1.com",
-				DefaultRef: "test-ref-1",
+				Host: "test-github-1.com",
 			}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.UnknownVCS, urlutil.MustParse(subtestValueURL)))
 			if err == nil {
 				t.Fatal("expected error but got: nil")
@@ -49,16 +46,15 @@ func Test_RepositoryFactory_URL_ErrPathFormat(t *testing.T) {
 	}
 }
 
-func Test_RepositoryFactory_URL_OwnerRepository(t *testing.T) {
+func Test_RepositoryFactory_URL_ServiceOwnerRepository(t *testing.T) {
 	for subtestNameURL, subtestValueURL := range map[string]string{
-		"FullURL": "https://test-github-1.com/test-owner-1/test-repository-1",
-		"LazyURL": "//test-github-1.com/test-owner-1/test-repository-1",
+		"FullURL":    "https://other-github-1.com/test-owner-1/test-repository-1",
+		"PackageURL": "other-github-1.com/test-owner-1/test-repository-1",
 	} {
 		t.Run(subtestNameURL, func(t *testing.T) {
 			repo, err := RepositoryFactory{
-				Server:     "https://test-github-1.com",
-				DefaultRef: "test-ref-1",
-			}.NewRepository(importshttp.NewRepositoryConfigURL("", urlutil.MustParse(subtestValueURL)))
+				Host: "test-github-1.com",
+			}.NewRepository(importshttp.NewRepositoryConfigURL(RepositoryService, urlutil.MustParse(subtestValueURL)))
 			if err != nil {
 				t.Fatalf("expected no error but got: %v", err)
 			}
@@ -68,13 +64,44 @@ func Test_RepositoryFactory_URL_OwnerRepository(t *testing.T) {
 				t.Fatalf("assertion failed on value type: %T", repo)
 			}
 
-			if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
+			if _e, _a := false, repoT.Insecure; _e != _a {
+				t.Fatalf("expected `%v` but got: %v", _e, _a)
+			} else if _e, _a := "other-github-1.com", repoT.Host; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
 			} else if _e, _a := "test-owner-1", repoT.Owner; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
 			} else if _e, _a := "test-repository-1", repoT.Repository; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
-			} else if _e, _a := "test-ref-1", repoT.Ref; _e != _a {
+			}
+		})
+	}
+}
+
+func Test_RepositoryFactory_URL_OwnerRepository(t *testing.T) {
+	for subtestNameURL, subtestValueURL := range map[string]string{
+		"FullURL":    "https://test-github-1.com/test-owner-1/test-repository-1",
+		"PackageURL": "test-github-1.com/test-owner-1/test-repository-1",
+	} {
+		t.Run(subtestNameURL, func(t *testing.T) {
+			repo, err := RepositoryFactory{
+				Host: "test-github-1.com",
+			}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.UnknownVCS, urlutil.MustParse(subtestValueURL)))
+			if err != nil {
+				t.Fatalf("expected no error but got: %v", err)
+			}
+
+			repoT, ok := repo.(Repository)
+			if !ok {
+				t.Fatalf("assertion failed on value type: %T", repo)
+			}
+
+			if _e, _a := false, repoT.Insecure; _e != _a {
+				t.Fatalf("expected `%v` but got: %v", _e, _a)
+			} else if _e, _a := "test-github-1.com", repoT.Host; _e != _a {
+				t.Fatalf("expected `%v` but got: %v", _e, _a)
+			} else if _e, _a := "test-owner-1", repoT.Owner; _e != _a {
+				t.Fatalf("expected `%v` but got: %v", _e, _a)
+			} else if _e, _a := "test-repository-1", repoT.Repository; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
 			}
 		})
@@ -84,27 +111,27 @@ func Test_RepositoryFactory_URL_OwnerRepository(t *testing.T) {
 func Test_RepositoryFactory_URL_OwnerRepositoryRef(t *testing.T) {
 	for subtestNameURL, subtestValueURL := range map[string]string{
 		"FullURL": "https://test-github-1.com/test-owner-1/test-repository-1/tree/test-customref-1",
-		"LazyURL": "//test-github-1.com/test-owner-1/test-repository-1/tree/test-customref-1",
 	} {
 		t.Run(subtestNameURL, func(t *testing.T) {
 			repo, err := RepositoryFactory{
-				Server:     "https://test-github-1.com",
-				DefaultRef: "test-ref-1",
-			}.NewRepository(importshttp.NewRepositoryConfigURL("", urlutil.MustParse(subtestValueURL)))
+				Host: "test-github-1.com",
+			}.NewRepository(importshttp.NewRepositoryConfigURL(importshttp.UnknownVCS, urlutil.MustParse(subtestValueURL)))
 			if err != nil {
 				t.Fatalf("expected no error but got: %v", err)
 			}
 
-			repoT, ok := repo.(Repository)
+			repoT, ok := repo.(RepositoryRef)
 			if !ok {
 				t.Fatalf("assertion failed on value type: %T", repo)
 			}
 
-			if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
+			if _e, _a := false, repoT.Repository.Insecure; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
-			} else if _e, _a := "test-owner-1", repoT.Owner; _e != _a {
+			} else if _e, _a := "test-github-1.com", repoT.Repository.Host; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
-			} else if _e, _a := "test-repository-1", repoT.Repository; _e != _a {
+			} else if _e, _a := "test-owner-1", repoT.Repository.Owner; _e != _a {
+				t.Fatalf("expected `%v` but got: %v", _e, _a)
+			} else if _e, _a := "test-repository-1", repoT.Repository.Repository; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
 			} else if _e, _a := "test-customref-1", repoT.Ref; _e != _a {
 				t.Fatalf("expected `%v` but got: %v", _e, _a)
@@ -115,10 +142,9 @@ func Test_RepositoryFactory_URL_OwnerRepositoryRef(t *testing.T) {
 
 func Test_RepositoryFactory_Properties_Default(t *testing.T) {
 	repo, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigProperties(
-		importshttp.GitVCS,
+		RepositoryService,
 		map[string]string{
 			"owner":      "test-owner-1",
 			"repository": "test-repository-1",
@@ -133,20 +159,20 @@ func Test_RepositoryFactory_Properties_Default(t *testing.T) {
 		t.Fatalf("assertion failed on value type: %T", repo)
 	}
 
-	if _e, _a := "https://test-github-1.com", repoT.Server; _e != _a {
+	if _e, _a := false, repoT.Insecure; _e != _a {
+		t.Fatalf("expected `%v` but got: %v", _e, _a)
+	} else if _e, _a := "test-github-1.com", repoT.Host; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
 	} else if _e, _a := "test-owner-1", repoT.Owner; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
 	} else if _e, _a := "test-repository-1", repoT.Repository; _e != _a {
-		t.Fatalf("expected `%v` but got: %v", _e, _a)
-	} else if _e, _a := "test-ref-1", repoT.Ref; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
 	}
 }
 
 func exampleConfigPropertiesValid() map[string]string {
 	return map[string]string{
-		"server":     "testproto://test-github-1.com",
+		"host":       "test-github-1.com",
 		"owner":      "test-owner-1",
 		"repository": "test-repository-1",
 		"ref":        "test-customref-1",
@@ -155,26 +181,27 @@ func exampleConfigPropertiesValid() map[string]string {
 
 func Test_RepositoryFactory_Properties_NonDefault(t *testing.T) {
 	repo, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigProperties(
-		importshttp.GitVCS,
+		RepositoryService,
 		exampleConfigPropertiesValid(),
 	))
 	if err != nil {
 		t.Fatalf("expected no error but got: %v", err)
 	}
 
-	repoT, ok := repo.(Repository)
+	repoT, ok := repo.(RepositoryRef)
 	if !ok {
 		t.Fatalf("assertion failed on value type: %T", repo)
 	}
 
-	if _e, _a := "testproto://test-github-1.com", repoT.Server; _e != _a {
+	if _e, _a := false, repoT.Repository.Insecure; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
-	} else if _e, _a := "test-owner-1", repoT.Owner; _e != _a {
+	} else if _e, _a := "test-github-1.com", repoT.Repository.Host; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
-	} else if _e, _a := "test-repository-1", repoT.Repository; _e != _a {
+	} else if _e, _a := "test-owner-1", repoT.Repository.Owner; _e != _a {
+		t.Fatalf("expected `%v` but got: %v", _e, _a)
+	} else if _e, _a := "test-repository-1", repoT.Repository.Repository; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
 	} else if _e, _a := "test-customref-1", repoT.Ref; _e != _a {
 		t.Fatalf("expected `%v` but got: %v", _e, _a)
@@ -186,10 +213,9 @@ func Test_RepositoryFactory_Properties_MissingOwner(t *testing.T) {
 	delete(config, "owner")
 
 	_, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigProperties(
-		importshttp.GitVCS,
+		RepositoryService,
 		config,
 	))
 	if err == nil {
@@ -204,10 +230,9 @@ func Test_RepositoryFactory_Properties_MissingRepository(t *testing.T) {
 	delete(config, "repository")
 
 	_, err := RepositoryFactory{
-		Server:     "https://test-github-1.com",
-		DefaultRef: "test-ref-1",
+		Host: "test-github-1.com",
 	}.NewRepository(importshttp.NewRepositoryConfigProperties(
-		importshttp.GitVCS,
+		RepositoryService,
 		config,
 	))
 	if err == nil {

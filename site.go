@@ -10,10 +10,6 @@ type Site struct {
 	// URL allows providing an absolute address (instead of using /).
 	URL string
 
-	// PackagePathPrefix determines the part of the package path which should be removed when building site links.
-	// Typically this is the first segment of the remote package imports - the hostname.
-	PackagePathPrefix string
-
 	// Title overrides the default import-host value on some pages.
 	Title string
 
@@ -22,6 +18,13 @@ type Site struct {
 
 	// ContentLanguage is the primary language value used by themes and packages.
 	ContentLanguage string
+
+	// PackagePathPrefix determines the part of the package path which should be removed when building site links.
+	// Typically this is the first segment of the remote package imports - the hostname.
+	PackagePathPrefix string
+
+	// PackageLinkers are used for generating links for dynamically-discovered subpackages.
+	PackageLinkers LinkerList
 
 	// Links apply to all pages.
 	Links LinkList
